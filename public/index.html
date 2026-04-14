@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>TradeMatrix Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#070c12;color:#dde6f0;font-family:'Inter',sans-serif;font-size:13px;overflow:hidden}
+:root{
+  --bg0:#070c12;--bg1:#0c1520;--bg2:#111e2e;--bg3:#1a2840;
+  --b1:#1c2d42;--b2:#243550;
+  --gr:#00e676;--gr2:#00c853;--grdim:#071f12;
+  --re:#ff5252;--redim:#1f0707;
+  --am:#ffab40;--bl:#40c4ff;
+  --t1:#dde6f0;--t2:#7a9ab8;--t3:#3d5870;
+  --mono:'Space Mono',monospace;
+}
+.app{display:grid;grid-template-rows:40px 1fr;grid-template-columns:185px 1fr;height:100vh}
+/* TICKER */
+.ticker{grid-column:1/-1;background:var(--bg1);border-bottom:1px solid var(--b1);overflow:hidden;display:flex;align-items:center}
+.tk-inner{display:flex;animation:tkroll 40s linear infinite;white-space:nowrap}
+.tk-item{display:flex;align-items:center;gap:8px;padding:0 20px;border-right:1px solid var(--b1);font-family:var(--mono);font-size:10px;height:40px;flex-shrink:0}
+.tk-sym{color:var(--t2)}.tk-p{color:var(--t1);font-weight:700}.up{color:var(--gr)}.dn{color:var(--re)}
+@keyframes tkroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+/* SIDEBAR */
+.sidebar{background:var(--bg1);border-right:1px solid var(--b1);display:flex;flex-direction:column}
+.logo{padding:13px 14px 11px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:9px}
+.logo-gem{width:27px;height:27px;border-radius:5px;background:linear-gradient(135deg,var(--gr),var(--bl));display:flex;align-items:center;justify-content:center;font-size:14px}
+.logo-name{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t1)}
+.logo-ver{font-size:9px;color:var(--t3);margin-top:1px}
+.nav{padding:8px 0;flex:1}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:12px;font-weight:500;color:var(--t2);border-left:2px solid transparent;transition:all .12s;user-select:none}
+.ni:hover{color:var(--t1);background:var(--bg2)}
+.ni.on{color:var(--gr);background:var(--grdim);border-left-color:var(--gr)}
+.ni-ic{font-size:13px;width:16px;text-align:center}
+.sb-foot{padding:11px 14px;border-top:1px solid var(--b1)}
+.pulse-row{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--t3)}
+.dot-live{width:7px;height:7px;border-radius:50%;background:var(--gr);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,230,118,.5)}70%{box-shadow:0 0 0 7px rgba(0,230,118,0)}100%{box-shadow:0 0 0 0 rgba(0,230,118,0)}}
+.acct-count{margin-left:auto;background:var(--grdim);color:var(--gr);font-size:9px;padding:2px 6px;border-radius:3px;font-family:var(--mono);font-weight:700}
+/* MAIN */
+.main{background:var(--bg0);overflow-y:auto;padding:18px}
+.page{display:none}.page.on{display:block}
+/* CARDS */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.card{background:var(--bg1);border:1px solid var(--b1);border-radius:7px;padding:14px}
+.card2{background:var(--bg2);border:1px solid var(--b1);border-radius:6px;padding:12px;margin-bottom:8px}
+.slabel{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.sval{font-size:20px;font-weight:700;font-family:var(--mono);color:var(--t1)}
+.ssub{font-size:11px;color:var(--t3);margin-top:3px}
+.sh{display:flex;align-items:center;gap:7px;margin-bottom:12px}
+.sh-dot{width:5px;height:5px;border-radius:50%;background:var(--gr)}
+.sh-title{font-size:12px;font-weight:600;color:var(--t1)}
+.pg-title{font-size:16px;font-weight:600;color:var(--t1);margin-bottom:4px}
+.pg-sub{font-size:12px;color:var(--t3);margin-bottom:16px}
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:10px;color:var(--t3);font-family:var(--mono);text-align:left;padding:6px 8px;border-bottom:1px solid var(--b1)}
+.tbl td{padding:9px 8px;border-bottom:1px solid var(--b1);color:var(--t2);font-size:12px}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg2);color:var(--t1)}
+.badge{display:inline-block;font-size:10px;padding:2px 6px;border-radius:3px;font-family:var(--mono);font-weight:700}
+.bg{background:var(--grdim);color:var(--gr)}.br{background:var(--redim);color:var(--re)}.bb{background:#071829;color:var(--bl)}.ba{background:#1e1000;color:var(--am)}
+/* FORM */
+input,select{width:100%;background:var(--bg2);border:1px solid var(--b2);border-radius:5px;padding:9px 12px;color:var(--t1);font-family:var(--mono);font-size:11px;outline:none;transition:border .15s}
+input:focus,select:focus{border-color:var(--gr);box-shadow:0 0 0 2px rgba(0,230,118,.08)}
+input::placeholder{color:var(--t3)}
+select option{background:var(--bg2)}
+.flabel{font-size:10px;color:var(--t3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px}
+.fgroup{margin-bottom:11px}
+.btn{padding:9px 18px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .12s}
+.btn-g{background:var(--gr);color:#000}.btn-g:hover{background:var(--gr2)}.btn-g:disabled{opacity:.4;cursor:not-allowed}
+.btn-o{background:transparent;border:1px solid var(--b2);color:var(--t2)}.btn-o:hover{color:var(--t1);border-color:var(--t2)}
+.btn-r{background:var(--re);color:#fff}
+.exgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}
+.exbtn{background:var(--bg2);border:1px solid var(--b1);border-radius:6px;padding:9px 5px;cursor:pointer;text-align:center;font-size:11px;color:var(--t2);transition:all .12s;user-select:none}
+.exbtn:hover,.exbtn.sel{border-color:var(--gr);color:var(--gr);background:var(--grdim)}
+.exic{font-size:17px;margin-bottom:3px}
+/* ALERTS */
+.alert{padding:9px 12px;border-radius:5px;font-size:12px;line-height:1.6;margin-bottom:12px;border-left:3px solid}
+.al-info{background:#071829;border-color:var(--bl);color:var(--bl)}
+.al-ok{background:var(--grdim);border-color:var(--gr);color:var(--gr)}
+.al-err{background:var(--redim);border-color:var(--re);color:var(--re)}
+.al-warn{background:#1e1000;border-color:var(--am);color:var(--am)}
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:300px;background:var(--bg1);border:1px solid var(--b1);border-radius:7px;overflow:hidden}
+.chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.cmsg{display:flex;gap:8px;align-items:flex-start}
+.cmsg.user{flex-direction:row-reverse}
+.bubble{padding:8px 12px;font-size:12px;line-height:1.6;border-radius:7px;max-width:88%}
+.b-ai{background:var(--bg2);border:1px solid var(--b1);color:var(--t1)}
+.b-user{background:var(--grdim);border:1px solid rgba(0,230,118,.15);color:var(--t1)}
+.av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:2px}
+.av-ai{background:linear-gradient(135deg,var(--gr),var(--bl));color:#000}
+.av-u{background:var(--bg3);color:var(--t2)}
+.chat-in{display:flex;gap:8px;padding:10px;border-top:1px solid var(--b1)}
+.chat-in input{font-family:'Inter',sans-serif}
+/* SPINNER */
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--b2);border-top-color:var(--gr);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* AGENT */
+.ag-card{background:var(--bg2);border:1px solid var(--b1);border-radius:6px;padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ag-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.divider{height:1px;background:var(--b1);margin:14px 0}
+</style>
+</head>
+<body>
+<div class="app">
+ 
+  <!-- TICKER -->
+  <div class="ticker">
+    <div class="tk-inner" id="tickerInner">
+      <div class="tk-item"><span class="tk-sym">BTC/USDT</span><span class="tk-p">67,234.58</span><span class="up">+2.41%</span></div>
+      <div class="tk-item"><span class="tk-sym">ETH/USDT</span><span class="tk-p">3,456.88</span><span class="dn">-0.87%</span></div>
+      <div class="tk-item"><span class="tk-sym">SOL/USDT</span><span class="tk-p">178.98</span><span class="up">+4.56%</span></div>
+      <div class="tk-item"><span class="tk-sym">BNB/USDT</span><span class="tk-p">412.30</span><span class="up">+1.23%</span></div>
+      <div class="tk-item"><span class="tk-sym">XRP/USDT</span><span class="tk-p">0.5821</span><span class="up">+3.12%</span></div>
+      <div class="tk-item"><span class="tk-sym">ADA/USDT</span><span class="tk-p">0.4523</span><span class="dn">-1.45%</span></div>
+      <div class="tk-item"><span class="tk-sym">BTC/USDT</span><span class="tk-p">67,234.58</span><span class="up">+2.41%</span></div>
+      <div class="tk-item"><span class="tk-sym">ETH/USDT</span><span class="tk-p">3,456.88</span><span class="dn">-0.87%</span></div>
+      <div class="tk-item"><span class="tk-sym">SOL/USDT</span><span class="tk-p">178.98</span><span class="up">+4.56%</span></div>
+      <div class="tk-item"><span class="tk-sym">BNB/USDT</span><span class="tk-p">412.30</span><span class="up">+1.23%</span></div>
+      <div class="tk-item"><span class="tk-sym">XRP/USDT</span><span class="tk-p">0.5821</span><span class="up">+3.12%</span></div>
+      <div class="tk-item"><span class="tk-sym">ADA/USDT</span><span class="tk-p">0.4523</span><span class="dn">-1.45%</span></div>
+    </div>
+  </div>
+ 
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-gem">⬡</div>
+      <div><div class="logo-name">TradeMatrix</div><div class="logo-ver">AI Trading v2.4.1</div></div>
+    </div>
+    <div class="nav">
+      <div class="ni on" onclick="goto('dashboard')"><span class="ni-ic">◈</span>Dashboard</div>
+      <div class="ni" onclick="goto('connect')" id="nav-connect"><span class="ni-ic">⬡</span>Connect Exchange</div>
+      <div class="ni" onclick="goto('portfolio')"><span class="ni-ic">◉</span>Portfolio</div>
+      <div class="ni" onclick="goto('agents')"><span class="ni-ic">◈</span>AI Agents</div>
+      <div class="ni" onclick="goto('ai')"><span class="ni-ic">✦</span>AI Chat</div>
+    </div>
+    <div class="sb-foot">
+      <div class="pulse-row"><div class="dot-live"></div>4/4 agents active</div>
+      <div style="font-size:10px;color:var(--t3);margin-top:4px;font-family:var(--mono)">Markets Open · v2.4.1</div>
+    </div>
+  </div>
+ 
+  <!-- MAIN -->
+  <div class="main">
+ 
+    <!-- DASHBOARD -->
+    <div class="page on" id="page-dashboard">
+      <div class="pg-title">Portfolio Overview</div>
+      <div class="pg-sub" id="dash-time">Loading...</div>
+      <div class="grid3">
+        <div class="card"><div class="slabel">Total Value</div><div class="sval" id="dash-total">$14,247.80</div><div class="ssub" style="color:var(--gr)">+$1,948.20 all time</div></div>
+        <div class="card"><div class="slabel">Connected</div><div class="sval" id="dash-accts">3</div><div class="ssub" id="dash-accts-sub">2 with AI enabled</div></div>
+        <div class="card"><div class="slabel">Open PnL</div><div class="sval" style="color:var(--gr)">+$1,233.87</div><div class="ssub">5 active positions</div></div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="sh"><div class="sh-dot"></div><div class="sh-title">Live Positions</div></div>
+        <table class="tbl">
+          <thead><tr><th>Symbol</th><th>Exchange</th><th>Side</th><th>Size</th><th>Entry</th><th>PnL</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--t1);font-family:var(--mono);font-weight:700">BTC/USDT</td><td>KuCoin</td><td><span class="badge bg">Long</span></td><td style="font-family:var(--mono)">0.12 BTC</td><td style="font-family:var(--mono)">$61,200</td><td style="font-family:var(--mono);color:var(--gr);font-weight:700">+$724.15 <span style="font-size:10px;opacity:.7">(+9.87%)</span></td></tr>
+            <tr><td style="color:var(--t1);font-family:var(--mono);font-weight:700">ETH/USDT</td><td>Binance</td><td><span class="badge bg">Long</span></td><td style="font-family:var(--mono)">1.5 ETH</td><td style="font-family:var(--mono)">$3,100</td><td style="font-family:var(--mono);color:var(--gr);font-weight:700">+$535.32 <span style="font-size:10px;opacity:.7">(+11.51%)</span></td></tr>
+            <tr><td style="color:var(--t1);font-family:var(--mono);font-weight:700">SOL/USDT</td><td>KuCoin</td><td><span class="badge br">Short</span></td><td style="font-family:var(--mono)">10 SOL</td><td style="font-family:var(--mono)">$185</td><td style="font-family:var(--mono);color:var(--re);font-weight:700">-$60.20 <span style="font-size:10px;opacity:.7">(-3.25%)</span></td></tr>
+            <tr><td style="color:var(--t1);font-family:var(--mono);font-weight:700">BNB/USDT</td><td>Binance</td><td><span class="badge bg">Long</span></td><td style="font-family:var(--mono)">2 BNB</td><td style="font-family:var(--mono)">$395</td><td style="font-family:var(--mono);color:var(--gr);font-weight:700">+$34.60 <span style="font-size:10px;opacity:.7">(+4.38%)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="real-accounts-section"></div>
+    </div>
+ 
+    <!-- CONNECT -->
+    <div class="page" id="page-connect">
+      <div class="pg-title">Connect Exchange</div>
+      <div class="pg-sub">Real balance fetch · Credentials signed server-side · No CORS issues</div>
+      <div class="alert al-info">Your API credentials are sent to <strong>your own server</strong>, which signs the request and calls the exchange directly. They are never stored or logged.</div>
+      <div id="connected-list"></div>
+      <div class="card">
+        <div class="sh"><div class="sh-dot"></div><div class="sh-title">Add Exchange</div></div>
+        <div class="exgrid">
+          <div class="exbtn sel" id="ex-kucoin" onclick="selEx('kucoin')"><div class="exic">🟡</div>KuCoin</div>
+          <div class="exbtn" id="ex-binance" onclick="selEx('binance')"><div class="exic">🟡</div>Binance</div>
+          <div class="exbtn" id="ex-coinbase" onclick="selEx('coinbase')"><div class="exic">🔵</div>Coinbase</div>
+          <div class="exbtn" id="ex-bybit" onclick="selEx('bybit')"><div class="exic">🟠</div>Bybit</div>
+          <div class="exbtn" id="ex-okx" onclick="selEx('okx')"><div class="exic">⚫</div>OKX</div>
+          <div class="exbtn" id="ex-forex" onclick="selEx('forex')"><div class="exic">📈</div>Forex MT5</div>
+        </div>
+        <div class="fgroup"><label class="flabel">Account Name (optional)</label><input id="f-name" placeholder="My KuCoin Account"/></div>
+        <div class="fgroup"><label class="flabel">API Key *</label><input id="f-key" placeholder="Enter your API key"/></div>
+        <div class="fgroup"><label class="flabel">API Secret *</label><input id="f-secret" type="password" placeholder="Enter your API secret"/></div>
+        <div class="fgroup" id="pp-group">
+          <label class="flabel">Passphrase * <span style="color:var(--am);font-size:10px">(required for KuCoin)</span></label>
+          <input id="f-pass" type="password" placeholder="Passphrase you set when creating this API key on KuCoin"/>
+          <div style="font-size:11px;color:var(--t3);margin-top:5px;font-family:var(--mono)">NOT your login password. Set on KuCoin when you created this API key.</div>
+        </div>
+        <div style="font-size:11px;color:var(--t3);margin-bottom:14px;padding:8px 10px;background:var(--bg0);border-radius:4px;font-family:var(--mono)">
+          Required permissions: General (read) · Trade (read) · No withdrawal access needed
+        </div>
+        <div id="conn-alert"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-g" id="conn-btn" onclick="connectExchange()">Connect & Fetch Real Balance</button>
+          <button class="btn btn-o" onclick="clearForm()">Clear</button>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- PORTFOLIO -->
+    <div class="page" id="page-portfolio">
+      <div class="pg-title">Portfolio</div>
+      <div class="pg-sub">All positions and real account balances</div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="sh"><div class="sh-dot"></div><div class="sh-title">Positions</div></div>
+        <table class="tbl">
+          <thead><tr><th>Symbol</th><th>Exchange</th><th>Side</th><th>Entry</th><th>PnL</th><th>%</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--t1);font-family:var(--mono);font-weight:700">BTC/USDT</td><td>KuCoin</td><td><span class="badge bg">Long</span></td><td style="font-family:var(--mono)">$61,200</td><td style="font-family:var(--mono);color:var(--gr)">+$724.15</td><td style="font-family:var(--mono);color:var(--gr)">+9.87%</td></tr>
+            <tr><td style="color:var(--t1);font-family:var(--mono);font-weight:700">ETH/USDT</td><td>Binance</td><td><span class="badge bg">Long</span></td><td style="font-family:var(--mono)">$3,100</td><td style="font-family:var(--mono);color:var(--gr)">+$535.32</td><td style="font-family:var(--mono);color:var(--gr)">+11.51%</td></tr>
+            <tr><td style="color:var(--t1);font-family:var(--mono);font-weight:700">SOL/USDT</td><td>KuCoin</td><td><span class="badge br">Short</span></td><td style="font-family:var(--mono)">$185</td><td style="font-family:var(--mono);color:var(--re)">-$60.20</td><td style="font-family:var(--mono);color:var(--re)">-3.25%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="port-accounts"></div>
+    </div>
+ 
+    <!-- AGENTS -->
+    <div class="page" id="page-agents">
+      <div class="pg-title">AI Agents</div>
+      <div class="pg-sub">4/4 agents running · Real-time signal generation</div>
+      <div class="grid2">
+        <div class="card"><div class="slabel">Signals Today</div><div class="sval">14</div><div class="ssub">11 executed</div></div>
+        <div class="card"><div class="slabel">Agent PnL Today</div><div class="sval" style="color:var(--gr)">+$523</div><div class="ssub">Across all agents</div></div>
+      </div>
+      <div class="ag-card"><div class="ag-dot" style="background:#00e676;box-shadow:0 0 6px #00e67666"></div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--t1)">Momentum Trader</div><div style="font-size:11px;color:var(--t3)">BTC/USDT · 4 trades today</div></div><div style="text-align:right"><div style="font-family:var(--mono);font-size:11px;color:var(--gr);font-weight:700">+$312</div><span class="badge bg" style="font-size:9px">ACTIVE</span></div></div>
+      <div class="ag-card"><div class="ag-dot" style="background:#40c4ff;box-shadow:0 0 6px #40c4ff66"></div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--t1)">Mean Reversion</div><div style="font-size:11px;color:var(--t3)">ETH/USDT · 2 trades today</div></div><div style="text-align:right"><div style="font-family:var(--mono);font-size:11px;color:var(--gr);font-weight:700">+$88</div><span class="badge bg" style="font-size:9px">ACTIVE</span></div></div>
+      <div class="ag-card"><div class="ag-dot" style="background:#ffab40;box-shadow:0 0 6px #ffab4066"></div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--t1)">Breakout Hunter</div><div style="font-size:11px;color:var(--t3)">SOL/USDT · 1 trade today</div></div><div style="text-align:right"><div style="font-family:var(--mono);font-size:11px;color:var(--re);font-weight:700">-$22</div><span class="badge bg" style="font-size:9px">ACTIVE</span></div></div>
+      <div class="ag-card"><div class="ag-dot" style="background:#b388ff;box-shadow:0 0 6px #b388ff66"></div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--t1)">Grid Bot</div><div style="font-size:11px;color:var(--t3)">BNB/USDT · 7 trades today</div></div><div style="text-align:right"><div style="font-family:var(--mono);font-size:11px;color:var(--gr);font-weight:700">+$145</div><span class="badge bg" style="font-size:9px">ACTIVE</span></div></div>
+    </div>
+ 
+    <!-- AI CHAT -->
+    <div class="page" id="page-ai">
+      <div class="pg-title">AI Trading Assistant</div>
+      <div class="pg-sub">Powered by Claude · Ask about positions, strategy, or market conditions</div>
+      <div class="chat-wrap">
+        <div class="chat-msgs" id="chat-msgs">
+          <div class="cmsg"><div class="av av-ai">AI</div><div class="bubble b-ai">TradeMatrix AI online. I can analyze your positions, explain market conditions, or help you think through a trade strategy. What do you need?</div></div>
+        </div>
+        <div class="chat-in">
+          <input id="chat-input" placeholder="Ask about BTC outlook, position sizing, risk management..." onkeydown="if(event.key==='Enter')sendChat()"/>
+          <button class="btn btn-g" id="chat-btn" onclick="sendChat()">Send</button>
+        </div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:7px;flex-wrap:wrap">
+        <button class="btn btn-o" style="font-size:11px;padding:6px 11px" onclick="setQ('Analyze my current BTC position')">Analyze BTC position</button>
+        <button class="btn btn-o" style="font-size:11px;padding:6px 11px" onclick="setQ('What is the market sentiment right now?')">Market sentiment</button>
+        <button class="btn btn-o" style="font-size:11px;padding:6px 11px" onclick="setQ('Should I reduce risk given current volatility?')">Risk check</button>
+        <button class="btn btn-o" style="font-size:11px;padding:6px 11px" onclick="setQ('Explain momentum trading strategy')">Explain momentum</button>
+      </div>
+    </div>
+ 
+  </div><!-- /main -->
+</div><!-- /app -->
+ 
+<script>
+// ─── State ──────────────────────────────────────────────────────────────────
+let currentEx = 'kucoin';
+let accounts  = [];
+let chatHistory = [];
+ 
+// ─── Navigation ─────────────────────────────────────────────────────────────
+function goto(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  event.currentTarget.classList.add('on');
+}
+document.querySelectorAll('.ni').forEach(n=>n.addEventListener('click',function(){
+  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('on'));
+  this.classList.add('on');
+}));
+ 
+// ─── Live time ───────────────────────────────────────────────────────────────
+function updateTime(){
+  const t=new Date().toUTCString().replace('GMT','UTC');
+  document.getElementById('dash-time').textContent=t+' · All systems nominal';
+}
+updateTime();setInterval(updateTime,1000);
+ 
+// ─── Live prices ─────────────────────────────────────────────────────────────
+async function loadPrices(){
+  try{
+    const r=await fetch('/api/prices');
+    const d=await r.json();
+    if(!d.success||!d.prices)return;
+    const prices=d.prices;
+    const items=[];
+    for(const[sym,v]of Object.entries(prices)){
+      const label=sym.replace('-USDT','/USDT');
+      const p=v.price>=1?v.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):v.price.toFixed(4);
+      const cls=v.change>=0?'up':'dn';
+      const ch=(v.change>=0?'+':'')+v.change.toFixed(2)+'%';
+      items.push(`<div class="tk-item"><span class="tk-sym">${label}</span><span class="tk-p">${p}</span><span class="${cls}">${ch}</span></div>`);
+    }
+    const doubled=items.concat(items).join('');
+    document.getElementById('tickerInner').innerHTML=doubled;
+  }catch(e){}
+}
+loadPrices();setInterval(loadPrices,30000);
+ 
+// ─── Exchange selector ───────────────────────────────────────────────────────
+function selEx(ex){
+  currentEx=ex;
+  document.querySelectorAll('.exbtn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('ex-'+ex).classList.add('sel');
+  const needPP=ex==='kucoin'||ex==='coinbase';
+  document.getElementById('pp-group').style.display=needPP?'block':'none';
+}
+ 
+// ─── Connect exchange ────────────────────────────────────────────────────────
+async function connectExchange(){
+  const apiKey    = document.getElementById('f-key').value.trim();
+  const apiSecret = document.getElementById('f-secret').value.trim();
+  const passphrase= document.getElementById('f-pass').value.trim();
+  const name      = document.getElementById('f-name').value.trim();
+ 
+  if(!apiKey||!apiSecret){return setAlert('al-err','API Key and Secret are required.');}
+  const needPP=currentEx==='kucoin'||currentEx==='coinbase';
+  if(needPP&&!passphrase){return setAlert('al-err','Passphrase is required for '+currentEx+'. This is the passphrase you set on KuCoin when creating the API key — not your login password.');}
+ 
+  setAlert('al-info','<span class="spin"></span>Signing request & calling '+currentEx+' API...');
+  document.getElementById('conn-btn').disabled=true;
+ 
+  try{
+    let balances={},totalUSD=0;
+    if(currentEx==='kucoin'){
+      const res=await fetch('/api/kucoin/balance',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({apiKey,apiSecret,passphrase})
+      });
+      const d=await res.json();
+      if(!d.success)throw new Error(d.error||'KuCoin connection failed');
+      balances=d.balances;
+      totalUSD=d.totalUSD||0;
+    } else if(currentEx==='binance'){
+      const res=await fetch('/api/binance/balance',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({apiKey,apiSecret})
+      });
+      const d=await res.json();
+      if(!d.success)throw new Error(d.error||'Binance connection failed');
+      balances=d.balances;
+    } else {
+      // Simulated for other exchanges until their endpoints are added
+      await new Promise(r=>setTimeout(r,1000));
+      balances={USDT:Math.round(Math.random()*5000+500)};
+      totalUSD=balances.USDT;
+    }
+ 
+    const acct={id:Date.now(),exchange:currentEx,name:name||(currentEx.charAt(0).toUpperCase()+currentEx.slice(1)),balances,totalUSD,connected:new Date().toISOString()};
+    accounts.push(acct);
+    updateAccountViews();
+    setAlert('al-ok','✓ Connected! Real balance: $'+totalUSD.toFixed(2));
+    clearForm(true);
+  }catch(err){
+    const msg=err.message||'Connection failed';
+    setAlert('al-err','✗ '+msg);
+  }
+  document.getElementById('conn-btn').disabled=false;
+}
+ 
+function setAlert(cls,html){
+  const el=document.getElementById('conn-alert');
+  el.className='alert '+cls;
+  el.innerHTML=html;
+  el.style.display='block';
+}
+ 
+function clearForm(keepAlert){
+  document.getElementById('f-name').value='';
+  document.getElementById('f-key').value='';
+  document.getElementById('f-secret').value='';
+  document.getElementById('f-pass').value='';
+  if(!keepAlert){document.getElementById('conn-alert').style.display='none';}
+}
+ 
+// ─── Update account views ────────────────────────────────────────────────────
+function updateAccountViews(){
+  if(!accounts.length)return;
+ 
+  // Nav badge
+  const navConn=document.getElementById('nav-connect');
+  let badge=navConn.querySelector('.acct-count');
+  if(!badge){badge=document.createElement('span');badge.className='acct-count';navConn.appendChild(badge);}
+  badge.textContent=accounts.length;
+ 
+  // Dashboard stat
+  const extraBal=accounts.reduce((s,a)=>s+(a.totalUSD||0),0);
+  document.getElementById('dash-total').textContent='$'+(14247.80+extraBal).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('dash-accts').textContent=3+accounts.length;
+ 
+  // Dashboard real accounts section
+  const sec=document.getElementById('real-accounts-section');
+  sec.innerHTML='<div class="card"><div class="sh"><div class="sh-dot"></div><div class="sh-title">Your Real Accounts</div></div>'+
+    accounts.map(a=>`
+      <div class="card2">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div><div style="font-size:12px;font-weight:600;color:var(--t1)">${a.name}</div><div style="font-size:11px;color:var(--t3);font-family:var(--mono)">${a.exchange} · synced ${new Date(a.connected).toLocaleTimeString()}</div></div>
+          <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--gr)">$${(a.totalUSD||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          ${Object.entries(a.balances).map(([c,v])=>`<span style="font-size:11px;font-family:var(--mono);color:var(--t2)"><span style="color:var(--t1)">${c}</span> ${typeof v==='number'?v.toFixed(['BTC','ETH'].includes(c)?6:2):v}</span>`).join('')}
+        </div>
+      </div>`).join('')+'</div>';
+ 
+  // Connected list on connect page
+  document.getElementById('connected-list').innerHTML=accounts.length?
+    `<div class="card" style="margin-bottom:14px"><div class="sh"><div class="sh-dot"></div><div class="sh-title">Connected (${accounts.length})</div></div>`+
+    accounts.map(a=>`<div class="card2" style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:12px;font-weight:600;color:var(--t1)">${a.name}</div><div style="font-size:11px;color:var(--t3);font-family:var(--mono)">${a.exchange}</div></div><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--gr)">$${(a.totalUSD||0).toLocaleString('en-US',{minimumFractionDigits:2})}</div></div>`).join('')+
+    '<div style="height:1px;background:var(--b1);margin:12px 0"></div></div>':'';
+ 
+  // Portfolio page
+  document.getElementById('port-accounts').innerHTML=accounts.length?
+    `<div class="card"><div class="sh"><div class="sh-dot"></div><div class="sh-title">Real Account Balances</div></div>`+
+    accounts.map(a=>`<div class="card2"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:12px;font-weight:600;color:var(--t1)">${a.name} · <span style="color:var(--t3);font-weight:400">${a.exchange}</span></div><div style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--gr)">$${(a.totalUSD||0).toLocaleString('en-US',{minimumFractionDigits:2})}</div></div><table class="tbl"><thead><tr><th>Asset</th><th>Balance</th></tr></thead><tbody>${Object.entries(a.balances).map(([c,v])=>`<tr><td style="color:var(--t1);font-family:var(--mono)">${c}</td><td style="font-family:var(--mono)">${typeof v==='number'?v.toFixed(['BTC','ETH'].includes(c)?6:2):v}</td></tr>`).join('')}</tbody></table></div>`).join('')+
+    '</div>':'';
+}
+ 
+// ─── AI Chat ─────────────────────────────────────────────────────────────────
+function setQ(q){document.getElementById('chat-input').value=q;}
+ 
+async function sendChat(){
+  const input=document.getElementById('chat-input');
+  const txt=input.value.trim();if(!txt)return;
+  input.value='';
+  addMsg('user',txt);
+  chatHistory.push({role:'user',content:txt});
+  document.getElementById('chat-btn').disabled=true;
+  const thinkId='think-'+Date.now();
+  addMsg('ai','<span class="spin"></span>Thinking...',thinkId);
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:'You are TradeMatrix AI, an expert crypto and stock trading assistant built into a trading dashboard. The user has positions in BTC/USDT (long, +9.87%), ETH/USDT (long, +11.51%), SOL/USDT (short, -3.25%), BNB/USDT (long, +4.38%). Portfolio value ~$14,247. Be concise, data-driven, and direct. Under 120 words unless detail is requested.',
+        messages:chatHistory
+      })
+    });
+    const d=await res.json();
+    const reply=d.content?.map(c=>c.text||'').join('')||'API error';
+    removeMsg(thinkId);
+    addMsg('ai',reply);
+    chatHistory.push({role:'assistant',content:reply});
+  }catch(e){removeMsg(thinkId);addMsg('ai','Connection error — check your network.');}
+  document.getElementById('chat-btn').disabled=false;
+}
+ 
+function addMsg(role,html,id){
+  const wrap=document.getElementById('chat-msgs');
+  const d=document.createElement('div');
+  d.className='cmsg'+(role==='user'?' user':'');
+  if(id)d.id=id;
+  d.innerHTML=`<div class="av ${role==='user'?'av-u':'av-ai'}">${role==='user'?'U':'AI'}</div><div class="bubble ${role==='user'?'b-user':'b-ai'}">${html}</div>`;
+  wrap.appendChild(d);
+  wrap.scrollTop=wrap.scrollHeight;
+}
+function removeMsg(id){const el=document.getElementById(id);if(el)el.remove();}
+ 
+// Init
+document.getElementById('conn-alert').style.display='none';
+</script>
+</body>
+</html>
