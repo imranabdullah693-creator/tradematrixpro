@@ -109,7 +109,7 @@ select option{background:var(--bg2)}
 </head>
 <body>
 <div class="app">
- 
+
   <!-- TICKER -->
   <div class="ticker">
     <div class="tk-inner" id="tickerInner">
@@ -127,7 +127,7 @@ select option{background:var(--bg2)}
       <div class="tk-item"><span class="tk-sym">ADA/USDT</span><span class="tk-p">0.4523</span><span class="dn">-1.45%</span></div>
     </div>
   </div>
- 
+
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="logo">
@@ -146,10 +146,10 @@ select option{background:var(--bg2)}
       <div style="font-size:10px;color:var(--t3);margin-top:4px;font-family:var(--mono)">Markets Open · v2.4.1</div>
     </div>
   </div>
- 
+
   <!-- MAIN -->
   <div class="main">
- 
+
     <!-- DASHBOARD -->
     <div class="page on" id="page-dashboard">
       <div class="pg-title">Portfolio Overview</div>
@@ -173,7 +173,7 @@ select option{background:var(--bg2)}
       </div>
       <div id="real-accounts-section"></div>
     </div>
- 
+
     <!-- CONNECT -->
     <div class="page" id="page-connect">
       <div class="pg-title">Connect Exchange</div>
@@ -208,7 +208,7 @@ select option{background:var(--bg2)}
         </div>
       </div>
     </div>
- 
+
     <!-- PORTFOLIO -->
     <div class="page" id="page-portfolio">
       <div class="pg-title">Portfolio</div>
@@ -226,7 +226,7 @@ select option{background:var(--bg2)}
       </div>
       <div id="port-accounts"></div>
     </div>
- 
+
     <!-- AGENTS -->
     <div class="page" id="page-agents">
       <div class="pg-title">AI Agents</div>
@@ -240,7 +240,7 @@ select option{background:var(--bg2)}
       <div class="ag-card"><div class="ag-dot" style="background:#ffab40;box-shadow:0 0 6px #ffab4066"></div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--t1)">Breakout Hunter</div><div style="font-size:11px;color:var(--t3)">SOL/USDT · 1 trade today</div></div><div style="text-align:right"><div style="font-family:var(--mono);font-size:11px;color:var(--re);font-weight:700">-$22</div><span class="badge bg" style="font-size:9px">ACTIVE</span></div></div>
       <div class="ag-card"><div class="ag-dot" style="background:#b388ff;box-shadow:0 0 6px #b388ff66"></div><div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--t1)">Grid Bot</div><div style="font-size:11px;color:var(--t3)">BNB/USDT · 7 trades today</div></div><div style="text-align:right"><div style="font-family:var(--mono);font-size:11px;color:var(--gr);font-weight:700">+$145</div><span class="badge bg" style="font-size:9px">ACTIVE</span></div></div>
     </div>
- 
+
     <!-- AI CHAT -->
     <div class="page" id="page-ai">
       <div class="pg-title">AI Trading Assistant</div>
@@ -261,16 +261,16 @@ select option{background:var(--bg2)}
         <button class="btn btn-o" style="font-size:11px;padding:6px 11px" onclick="setQ('Explain momentum trading strategy')">Explain momentum</button>
       </div>
     </div>
- 
+
   </div><!-- /main -->
 </div><!-- /app -->
- 
+
 <script>
 // ─── State ──────────────────────────────────────────────────────────────────
 let currentEx = 'kucoin';
 let accounts  = [];
 let chatHistory = [];
- 
+
 // ─── Navigation ─────────────────────────────────────────────────────────────
 function goto(id) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
@@ -282,19 +282,21 @@ document.querySelectorAll('.ni').forEach(n=>n.addEventListener('click',function(
   document.querySelectorAll('.ni').forEach(x=>x.classList.remove('on'));
   this.classList.add('on');
 }));
- 
+
 // ─── Live time ───────────────────────────────────────────────────────────────
 function updateTime(){
   const t=new Date().toUTCString().replace('GMT','UTC');
   document.getElementById('dash-time').textContent=t+' · All systems nominal';
 }
 updateTime();setInterval(updateTime,1000);
- 
+
 // ─── Live prices ─────────────────────────────────────────────────────────────
 async function loadPrices(){
   try{
     const r=await fetch('/api/prices');
-    const d=await r.json();
+    if(!r.ok)return;
+    const text=await r.text();if(!text)return;
+    const d=JSON.parse(text);
     if(!d.success||!d.prices)return;
     const prices=d.prices;
     const items=[];
@@ -310,7 +312,7 @@ async function loadPrices(){
   }catch(e){}
 }
 loadPrices();setInterval(loadPrices,30000);
- 
+
 // ─── Exchange selector ───────────────────────────────────────────────────────
 function selEx(ex){
   currentEx=ex;
@@ -319,21 +321,21 @@ function selEx(ex){
   const needPP=ex==='kucoin'||ex==='coinbase';
   document.getElementById('pp-group').style.display=needPP?'block':'none';
 }
- 
+
 // ─── Connect exchange ────────────────────────────────────────────────────────
 async function connectExchange(){
   const apiKey    = document.getElementById('f-key').value.trim();
   const apiSecret = document.getElementById('f-secret').value.trim();
   const passphrase= document.getElementById('f-pass').value.trim();
   const name      = document.getElementById('f-name').value.trim();
- 
+
   if(!apiKey||!apiSecret){return setAlert('al-err','API Key and Secret are required.');}
   const needPP=currentEx==='kucoin'||currentEx==='coinbase';
   if(needPP&&!passphrase){return setAlert('al-err','Passphrase is required for '+currentEx+'. This is the passphrase you set on KuCoin when creating the API key — not your login password.');}
- 
+
   setAlert('al-info','<span class="spin"></span>Signing request & calling '+currentEx+' API...');
   document.getElementById('conn-btn').disabled=true;
- 
+
   try{
     let balances={},totalUSD=0;
     if(currentEx==='kucoin'){
@@ -341,6 +343,7 @@ async function connectExchange(){
         method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({apiKey,apiSecret,passphrase})
       });
+      if(!res.ok){const t=await res.text();try{const e=JSON.parse(t);throw new Error(e.error||'KuCoin connection failed')}catch(e){if(e.message)throw e;throw new Error('Server error ('+res.status+')')}}
       const d=await res.json();
       if(!d.success)throw new Error(d.error||'KuCoin connection failed');
       balances=d.balances;
@@ -350,6 +353,7 @@ async function connectExchange(){
         method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({apiKey,apiSecret})
       });
+      if(!res.ok){const t=await res.text();try{const e=JSON.parse(t);throw new Error(e.error||'Binance connection failed')}catch(e){if(e.message)throw e;throw new Error('Server error ('+res.status+')')}}
       const d=await res.json();
       if(!d.success)throw new Error(d.error||'Binance connection failed');
       balances=d.balances;
@@ -359,7 +363,7 @@ async function connectExchange(){
       balances={USDT:Math.round(Math.random()*5000+500)};
       totalUSD=balances.USDT;
     }
- 
+
     const acct={id:Date.now(),exchange:currentEx,name:name||(currentEx.charAt(0).toUpperCase()+currentEx.slice(1)),balances,totalUSD,connected:new Date().toISOString()};
     accounts.push(acct);
     updateAccountViews();
@@ -371,14 +375,14 @@ async function connectExchange(){
   }
   document.getElementById('conn-btn').disabled=false;
 }
- 
+
 function setAlert(cls,html){
   const el=document.getElementById('conn-alert');
   el.className='alert '+cls;
   el.innerHTML=html;
   el.style.display='block';
 }
- 
+
 function clearForm(keepAlert){
   document.getElementById('f-name').value='';
   document.getElementById('f-key').value='';
@@ -386,22 +390,22 @@ function clearForm(keepAlert){
   document.getElementById('f-pass').value='';
   if(!keepAlert){document.getElementById('conn-alert').style.display='none';}
 }
- 
+
 // ─── Update account views ────────────────────────────────────────────────────
 function updateAccountViews(){
   if(!accounts.length)return;
- 
+
   // Nav badge
   const navConn=document.getElementById('nav-connect');
   let badge=navConn.querySelector('.acct-count');
   if(!badge){badge=document.createElement('span');badge.className='acct-count';navConn.appendChild(badge);}
   badge.textContent=accounts.length;
- 
+
   // Dashboard stat
   const extraBal=accounts.reduce((s,a)=>s+(a.totalUSD||0),0);
   document.getElementById('dash-total').textContent='$'+(14247.80+extraBal).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('dash-accts').textContent=3+accounts.length;
- 
+
   // Dashboard real accounts section
   const sec=document.getElementById('real-accounts-section');
   sec.innerHTML='<div class="card"><div class="sh"><div class="sh-dot"></div><div class="sh-title">Your Real Accounts</div></div>'+
@@ -415,23 +419,23 @@ function updateAccountViews(){
           ${Object.entries(a.balances).map(([c,v])=>`<span style="font-size:11px;font-family:var(--mono);color:var(--t2)"><span style="color:var(--t1)">${c}</span> ${typeof v==='number'?v.toFixed(['BTC','ETH'].includes(c)?6:2):v}</span>`).join('')}
         </div>
       </div>`).join('')+'</div>';
- 
+
   // Connected list on connect page
   document.getElementById('connected-list').innerHTML=accounts.length?
     `<div class="card" style="margin-bottom:14px"><div class="sh"><div class="sh-dot"></div><div class="sh-title">Connected (${accounts.length})</div></div>`+
     accounts.map(a=>`<div class="card2" style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:12px;font-weight:600;color:var(--t1)">${a.name}</div><div style="font-size:11px;color:var(--t3);font-family:var(--mono)">${a.exchange}</div></div><div style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--gr)">$${(a.totalUSD||0).toLocaleString('en-US',{minimumFractionDigits:2})}</div></div>`).join('')+
     '<div style="height:1px;background:var(--b1);margin:12px 0"></div></div>':'';
- 
+
   // Portfolio page
   document.getElementById('port-accounts').innerHTML=accounts.length?
     `<div class="card"><div class="sh"><div class="sh-dot"></div><div class="sh-title">Real Account Balances</div></div>`+
     accounts.map(a=>`<div class="card2"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:12px;font-weight:600;color:var(--t1)">${a.name} · <span style="color:var(--t3);font-weight:400">${a.exchange}</span></div><div style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--gr)">$${(a.totalUSD||0).toLocaleString('en-US',{minimumFractionDigits:2})}</div></div><table class="tbl"><thead><tr><th>Asset</th><th>Balance</th></tr></thead><tbody>${Object.entries(a.balances).map(([c,v])=>`<tr><td style="color:var(--t1);font-family:var(--mono)">${c}</td><td style="font-family:var(--mono)">${typeof v==='number'?v.toFixed(['BTC','ETH'].includes(c)?6:2):v}</td></tr>`).join('')}</tbody></table></div>`).join('')+
     '</div>':'';
 }
- 
+
 // ─── AI Chat ─────────────────────────────────────────────────────────────────
 function setQ(q){document.getElementById('chat-input').value=q;}
- 
+
 async function sendChat(){
   const input=document.getElementById('chat-input');
   const txt=input.value.trim();if(!txt)return;
@@ -458,7 +462,7 @@ async function sendChat(){
   }catch(e){removeMsg(thinkId);addMsg('ai','Connection error — check your network.');}
   document.getElementById('chat-btn').disabled=false;
 }
- 
+
 function addMsg(role,html,id){
   const wrap=document.getElementById('chat-msgs');
   const d=document.createElement('div');
@@ -469,7 +473,7 @@ function addMsg(role,html,id){
   wrap.scrollTop=wrap.scrollHeight;
 }
 function removeMsg(id){const el=document.getElementById(id);if(el)el.remove();}
- 
+
 // Init
 document.getElementById('conn-alert').style.display='none';
 </script>
